@@ -1,5 +1,7 @@
 import request from 'supertest';
 import app from '../../app.js';
+// eslint-disable-next-line import/order
+import { jest } from '@jest/globals';
 
 let server;
 beforeEach(() => {
@@ -50,8 +52,17 @@ describe('GET em /editoras/id', () => {
 });
 
 describe('PUT em /editoras/id', () => {
-  it('Deve alterar o campo nome', async () => {
-    await request(app).put(`/editoras/${idResposta}`).send({ nome: 'Casa do Codigo' }).expect(204);
+  test.each([
+    ['nome', { nome: 'Casa do codigo' }],
+    ['cidade', { cidade: 'SP' }],
+    ['email', { email: 'cdc@cdc.com' }],
+  ])('Deve alterar o campo %s', async (chave, param) => {
+    const requisicao = { request };
+    const spy = jest.spyOn(requisicao, 'request');
+    await requisicao.request(app).put(`/editoras/${idResposta}`).send(param).expect(204);
+
+    expect(spy).toHaveBeenCalled();
+    // eslint-disable-next-line comma-dangle
   });
 });
 describe('DELETE em /editoras/id', () => {
